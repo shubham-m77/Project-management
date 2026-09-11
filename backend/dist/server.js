@@ -12,7 +12,7 @@ const userRoutes_1 = __importDefault(require("./routes/userRoutes"));
 const projectRoutes_1 = __importDefault(require("./routes/projectRoutes"));
 const taskRoutes_1 = __importDefault(require("./routes/taskRoutes"));
 const app = (0, express_1.default)();
-const allowedOrigin = process.env.CLIENT_URL || "http://localhost:3000";
+const allowedOrigin = (process.env.CLIENT_URL || "http://localhost:3000").replace(/\/+$/, "");
 app.use((0, cors_1.default)({ origin: allowedOrigin }));
 app.use(express_1.default.json({ limit: "100kb" }));
 app.use((0, express_2.clerkMiddleware)());

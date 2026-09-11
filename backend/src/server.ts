@@ -9,7 +9,7 @@ import taskRoutes from "./routes/taskRoutes";
 
 const app = express();
 
-const allowedOrigin = process.env.CLIENT_URL || "http://localhost:3000";
+const allowedOrigin = (process.env.CLIENT_URL || "http://localhost:3000").replace(/\/+$/, "");
 app.use(cors({ origin: allowedOrigin }));
 app.use(express.json({ limit: "100kb" }));
 app.use(clerkMiddleware());
