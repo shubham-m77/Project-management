@@ -7,7 +7,7 @@ cd frontend
 npm install
 cp .env.local.example .env.local
 # Add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY from the Clerk dashboard.
-# Set NEXT_PUBLIC_API_URL to your backend URL. Local development uses http://localhost:5000/api by default.
+# Set NEXT_PUBLIC_API_URL to your backend URL. Local development uses http://localhost:5000/api and production defaults to the MngPro Render API.
 npm run dev
 ```
 

@@ -1,7 +1,9 @@
 import { Project, Task } from "@/types";
 
 const API_URL = process.env.NEXT_PUBLIC_API_URL || (
-  process.env.NODE_ENV === "development" ? "http://localhost:5000/api" : ""
+  process.env.NODE_ENV === "development"
+    ? "http://localhost:5000/api"
+    : "https://mngpro.onrender.com/api"
 );
 
 type GetToken = () => Promise<string | null>;
@@ -12,10 +14,6 @@ async function request<T>(
   getToken: GetToken,
   options: RequestInit = {}
 ): Promise<T> {
-  if (!API_URL) {
-    throw new Error("NEXT_PUBLIC_API_URL is not configured. Set it to the deployed MngPro backend URL.");
-  }
-
   const token = await getToken();
 
   let res: Response;
