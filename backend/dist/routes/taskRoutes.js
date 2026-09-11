@@ -1,0 +1,10 @@
+"use strict";
+Object.defineProperty(exports, "__esModule", { value: true });
+const express_1 = require("express");
+const taskController_1 = require("../controllers/taskController");
+const auth_1 = require("../middleware/auth");
+const router = (0, express_1.Router)();
+router.use(auth_1.protect, auth_1.attachUser);
+router.route("/").get(taskController_1.getTasks).post(taskController_1.createTask);
+router.route("/:id").put(taskController_1.updateTask).delete(taskController_1.deleteTask);
+exports.default = router;
