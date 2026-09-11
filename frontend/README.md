@@ -7,7 +7,7 @@ cd frontend
 npm install
 cp .env.local.example .env.local
 # Add NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY and CLERK_SECRET_KEY from the Clerk dashboard.
-# Set NEXT_PUBLIC_API_URL to your backend URL (default: http://localhost:5000/api).
+# Set NEXT_PUBLIC_API_URL to your backend URL. Local development uses http://localhost:5000/api by default.
 npm run dev
 ```
 
@@ -41,4 +41,20 @@ src/
 ## Next Steps
 1. Start the backend and connect MongoDB.
 2. Add real Clerk keys to the environment files.
-3. Deploy the frontend to Vercel and backend to Render or Railway.
+3. Set `NEXT_PUBLIC_API_URL` to the deployed backend URL in the frontend hosting environment.
+4. Deploy the frontend to Vercel and backend to Render or Railway.
+
+## Production URLs
+
+- Frontend: `https://project-management-seven-iota.vercel.app`
+- Backend API: `https://mngpro.onrender.com/api`
+
+Set these deployment environment variables:
+
+```env
+# Vercel
+NEXT_PUBLIC_API_URL=https://mngpro.onrender.com/api
+
+# Render
+CLIENT_URL=https://project-management-seven-iota.vercel.app
+```

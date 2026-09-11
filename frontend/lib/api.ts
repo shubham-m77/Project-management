@@ -1,6 +1,8 @@
 import { Project, Task } from "@/types";
 
-const API_URL = process.env.NEXT_PUBLIC_API_URL || "http://localhost:5000/api";
+const API_URL = process.env.NEXT_PUBLIC_API_URL || (
+  process.env.NODE_ENV === "development" ? "http://localhost:5000/api" : ""
+);
 
 type GetToken = () => Promise<string | null>;
 
@@ -10,16 +12,25 @@ async function request<T>(
   getToken: GetToken,
   options: RequestInit = {}
 ): Promise<T> {
+  if (!API_URL) {
+    throw new Error("NEXT_PUBLIC_API_URL is not configured. Set it to the deployed MngPro backend URL.");
+  }
+
   const token = await getToken();
 
-  const res = await fetch(`${API_URL}${path}`, {
-    ...options,
-    headers: {
-      "Content-Type": "application/json",
-      ...(token ? { Authorization: `Bearer ${token}` } : {}),
-      ...options.headers,
-    },
-  });
+  let res: Response;
+  try {
+    res = await fetch(`${API_URL}${path}`, {
+      ...options,
+      headers: {
+        "Content-Type": "application/json",
+        ...(token ? { Authorization: `Bearer ${token}` } : {}),
+        ...options.headers,
+      },
+    });
+  } catch {
+    throw new Error(`Unable to reach the MngPro API at ${API_URL}. Check that the backend is running and publicly reachable.`);
+  }
 
   if (!res.ok) {
     const errorBody = await res.json().catch(() => ({}));
