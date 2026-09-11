@@ -23,12 +23,14 @@ export default function TaskBoard({
   projectId,
   initialTasks,
   members,
-  canManage
+  canManage,
+  currentUserId
 }: {
   projectId: string;
   initialTasks: Task[];
   members: Project["members"];
   canManage: boolean;
+  currentUserId: string | null;
 }) {
   const { getToken } = useAuth();
   const [tasks, setTasks] = useState<Task[]>(initialTasks);
@@ -187,7 +189,7 @@ export default function TaskBoard({
                       <>
                         <div className="flex items-start justify-between gap-2"><p className="text-sm font-bold leading-5 text-[#16333b]">{task.title}</p>{canManage && <div className="flex shrink-0 gap-1"><button type="button" onClick={() => startEditing(task)} className="focus-ring rounded-lg p-1 text-[#69737d] hover:bg-[#edf0ec] hover:text-[#2d7a72]" aria-label="Edit task" title="Edit task"><Pencil className="size-3.5" /></button><button type="button" onClick={() => handleTaskDelete(task)} disabled={deletingTaskId === task._id} className="focus-ring rounded-lg p-1 text-[#c4513d] hover:bg-[#fbe9e4] disabled:opacity-50" aria-label="Delete task" title="Delete task">{deletingTaskId === task._id ? <LoaderCircle className="size-3.5 animate-spin" /> : <Trash2 className="size-3.5" />}</button></div>}</div>
                         {task.assignedTo && <p className="mt-1 text-xs text-gray-400">{task.assignedTo.name || task.assignedTo.email}</p>}
-                        <div className="mt-2 flex items-center justify-between"><span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-[.08em] ${priorityColors[task.priority]}`}>{task.priority}</span>{canManage ? <select value={task.status} onChange={(e) => handleStatusChange(task._id, e.target.value as Task["status"])} className="focus-ring rounded-lg border border-[#dfe4df] bg-[#f6f7f4] px-2 py-1 text-[11px] text-[#69737d] outline-none">{COLUMNS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}</select> : <span className="text-[10px] font-bold uppercase tracking-[.08em] text-[#a0aaa9]">View only</span>}</div>
+                        <div className="mt-2 flex items-center justify-between"><span className={`rounded-full px-2 py-1 text-[10px] font-bold uppercase tracking-[.08em] ${priorityColors[task.priority]}`}>{task.priority}</span>{(canManage || task.assignedTo?.clerkId === currentUserId) ? <select value={task.status} onChange={(e) => handleStatusChange(task._id, e.target.value as Task["status"])} className="focus-ring rounded-lg border border-[#dfe4df] bg-[#f6f7f4] px-2 py-1 text-[11px] text-[#69737d] outline-none">{COLUMNS.map((c) => <option key={c.key} value={c.key}>{c.label}</option>)}</select> : <span className="text-[10px] font-bold uppercase tracking-[.08em] text-[#a0aaa9]">View only</span>}</div>
                       </>
                     )}
                   </div>

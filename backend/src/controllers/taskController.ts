@@ -35,8 +35,8 @@ export const getTasks = async (req: Request, res: Response): Promise<void> => {
     const filter = { project: { $in: projectIds } };
 
     const tasks = await Task.find(filter)
-      .populate("assignedTo", "name email")
-      .populate("createdBy", "name email")
+      .populate("assignedTo", "name email clerkId")
+      .populate("createdBy", "name email clerkId")
       .sort({ createdAt: -1 });
     res.json(tasks);
   } catch (error) {
@@ -83,8 +83,8 @@ export const createTask = async (req: Request, res: Response): Promise<void> => 
       dueDate,
       createdBy: req.user!._id,
     });
-    await task.populate("assignedTo", "name email");
-    await task.populate("createdBy", "name email");
+    await task.populate("assignedTo", "name email clerkId");
+    await task.populate("createdBy", "name email clerkId");
     res.status(201).json(task);
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
@@ -103,12 +103,20 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
       return;
     }
     const project = await getAccessibleProject(task.project.toString(), req.user!._id);
-    if (!project || !canManageTasks(project, req.user!._id)) {
+    const isAdmin = project ? canManageTasks(project, req.user!._id) : false;
+    const isAssignee = Boolean(task.assignedTo?.equals(req.user!._id));
+    if (!project || (!isAdmin && !isAssignee)) {
       res.status(403).json({ message: "Not authorized" });
       return;
     }
 
     const { title, description, assignedTo, status, priority, dueDate } = req.body;
+    const hasAdminOnlyChanges = [title, description, assignedTo, priority, dueDate]
+      .some((value) => value !== undefined);
+    if (!isAdmin && hasAdminOnlyChanges) {
+      res.status(403).json({ message: "Only project admins can edit task details" });
+      return;
+    }
     if (title !== undefined && (typeof title !== "string" || !title.trim())) {
       res.status(400).json({ message: "Task title cannot be empty" });
       return;
@@ -132,8 +140,8 @@ export const updateTask = async (req: Request, res: Response): Promise<void> => 
     if (priority !== undefined) task.priority = priority;
     if (dueDate !== undefined) task.dueDate = dueDate || undefined;
     await task.save();
-    await task.populate("assignedTo", "name email");
-    await task.populate("createdBy", "name email");
+    await task.populate("assignedTo", "name email clerkId");
+    await task.populate("createdBy", "name email clerkId");
     res.json(task);
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });

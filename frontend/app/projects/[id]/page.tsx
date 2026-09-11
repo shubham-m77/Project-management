@@ -34,7 +34,7 @@ export default async function ProjectDetailPage({
         </div>
 
         <div className="mt-10">
-           <TaskBoard projectId={id} initialTasks={tasks} members={project.members} canManage={canManage} />
+           <TaskBoard projectId={id} initialTasks={tasks} members={project.members} canManage={canManage} currentUserId={userId} />
           <MembersPanel project={project} canManage={canManage} />
         </div>
       </main>

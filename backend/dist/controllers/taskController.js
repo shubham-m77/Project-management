@@ -31,8 +31,8 @@ const getTasks = async (req, res) => {
         const projectIds = Array.isArray(projects) ? projects.map((project) => project._id) : [projects._id];
         const filter = { project: { $in: projectIds } };
         const tasks = await Task_1.default.find(filter)
-            .populate("assignedTo", "name email")
-            .populate("createdBy", "name email")
+            .populate("assignedTo", "name email clerkId")
+            .populate("createdBy", "name email clerkId")
             .sort({ createdAt: -1 });
         res.json(tasks);
     }
@@ -80,8 +80,8 @@ const createTask = async (req, res) => {
             dueDate,
             createdBy: req.user._id,
         });
-        await task.populate("assignedTo", "name email");
-        await task.populate("createdBy", "name email");
+        await task.populate("assignedTo", "name email clerkId");
+        await task.populate("createdBy", "name email clerkId");
         res.status(201).json(task);
     }
     catch (error) {
@@ -101,11 +101,19 @@ const updateTask = async (req, res) => {
             return;
         }
         const project = await getAccessibleProject(task.project.toString(), req.user._id);
-        if (!project || !canManageTasks(project, req.user._id)) {
+        const isAdmin = project ? canManageTasks(project, req.user._id) : false;
+        const isAssignee = Boolean(task.assignedTo?.equals(req.user._id));
+        if (!project || (!isAdmin && !isAssignee)) {
             res.status(403).json({ message: "Not authorized" });
             return;
         }
         const { title, description, assignedTo, status, priority, dueDate } = req.body;
+        const hasAdminOnlyChanges = [title, description, assignedTo, priority, dueDate]
+            .some((value) => value !== undefined);
+        if (!isAdmin && hasAdminOnlyChanges) {
+            res.status(403).json({ message: "Only project admins can edit task details" });
+            return;
+        }
         if (title !== undefined && (typeof title !== "string" || !title.trim())) {
             res.status(400).json({ message: "Task title cannot be empty" });
             return;
@@ -135,8 +143,8 @@ const updateTask = async (req, res) => {
         if (dueDate !== undefined)
             task.dueDate = dueDate || undefined;
         await task.save();
-        await task.populate("assignedTo", "name email");
-        await task.populate("createdBy", "name email");
+        await task.populate("assignedTo", "name email clerkId");
+        await task.populate("createdBy", "name email clerkId");
         res.json(task);
     }
     catch (error) {
