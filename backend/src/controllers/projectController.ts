@@ -17,8 +17,8 @@ export const getProjects = async (req: Request, res: Response): Promise<void> =>
     const projects = await Project.find({
       $or: [{ owner: req.user!._id }, { "members.user": req.user!._id }],
     })
-      .populate("owner", "name email")
-      .populate("members.user", "name email");
+      .populate("owner", "name email clerkId")
+      .populate("members.user", "name email clerkId");
     res.json(projects);
   } catch (error) {
     res.status(500).json({ message: (error as Error).message });
@@ -32,8 +32,8 @@ export const getProjectById = async (req: Request, res: Response): Promise<void>
       return;
     }
     const project = await Project.findById(req.params.id)
-      .populate("owner", "name email")
-      .populate("members.user", "name email");
+      .populate("owner", "name email clerkId")
+      .populate("members.user", "name email clerkId");
     if (!project) {
       res.status(404).json({ message: "Project not found" });
       return;
@@ -86,7 +86,7 @@ export const updateProject = async (req: Request, res: Response): Promise<void> 
       res.status(404).json({ message: "Project not found" });
       return;
     }
-    if (!project.owner.equals(req.user!._id)) {
+    if (!isAdmin(project, req.user!._id)) {
       res.status(403).json({ message: "Not authorized" });
       return;
     }
@@ -130,7 +130,7 @@ export const deleteProject = async (req: Request, res: Response): Promise<void> 
       res.status(404).json({ message: "Project not found" });
       return;
     }
-    if (!project.owner.equals(req.user!._id)) {
+    if (!isAdmin(project, req.user!._id)) {
       res.status(403).json({ message: "Not authorized" });
       return;
     }

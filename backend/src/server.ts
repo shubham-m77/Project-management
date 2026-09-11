@@ -15,7 +15,7 @@ app.use(express.json({ limit: "100kb" }));
 app.use(clerkMiddleware());
 
 app.get("/api/health", (req: Request, res: Response) => {
-  res.json({ status: "OK", service: "NOVA backend" });
+  res.json({ status: "OK", service: "MngPro backend" });
 });
 
 app.use("/api/users", userRoutes);
@@ -35,7 +35,7 @@ const PORT = Number(process.env.PORT) || 5000;
 
 const startServer = async (): Promise<void> => {
   await connectDB();
-  app.listen(PORT, () => console.log(`NOVA backend running on port ${PORT}`));
+  app.listen(PORT, () => console.log(`MngPro backend running on port ${PORT}`));
 };
 
 startServer().catch((error: Error) => {

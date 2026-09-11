@@ -17,7 +17,7 @@ app.use((0, cors_1.default)({ origin: allowedOrigin }));
 app.use(express_1.default.json({ limit: "100kb" }));
 app.use((0, express_2.clerkMiddleware)());
 app.get("/api/health", (req, res) => {
-    res.json({ status: "OK", service: "NOVA backend" });
+    res.json({ status: "OK", service: "MngPro backend" });
 });
 app.use("/api/users", userRoutes_1.default);
 app.use("/api/projects", projectRoutes_1.default);
@@ -32,7 +32,7 @@ app.use((err, req, res, next) => {
 const PORT = Number(process.env.PORT) || 5000;
 const startServer = async () => {
     await (0, db_1.default)();
-    app.listen(PORT, () => console.log(`NOVA backend running on port ${PORT}`));
+    app.listen(PORT, () => console.log(`MngPro backend running on port ${PORT}`));
 };
 startServer().catch((error) => {
     console.error(`Failed to start server: ${error.message}`);

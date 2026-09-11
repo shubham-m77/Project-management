@@ -15,8 +15,8 @@ const getProjects = async (req, res) => {
         const projects = await Project_1.default.find({
             $or: [{ owner: req.user._id }, { "members.user": req.user._id }],
         })
-            .populate("owner", "name email")
-            .populate("members.user", "name email");
+            .populate("owner", "name email clerkId")
+            .populate("members.user", "name email clerkId");
         res.json(projects);
     }
     catch (error) {
@@ -31,8 +31,8 @@ const getProjectById = async (req, res) => {
             return;
         }
         const project = await Project_1.default.findById(req.params.id)
-            .populate("owner", "name email")
-            .populate("members.user", "name email");
+            .populate("owner", "name email clerkId")
+            .populate("members.user", "name email clerkId");
         if (!project) {
             res.status(404).json({ message: "Project not found" });
             return;
@@ -87,7 +87,7 @@ const updateProject = async (req, res) => {
             res.status(404).json({ message: "Project not found" });
             return;
         }
-        if (!project.owner.equals(req.user._id)) {
+        if (!isAdmin(project, req.user._id)) {
             res.status(403).json({ message: "Not authorized" });
             return;
         }
@@ -133,7 +133,7 @@ const deleteProject = async (req, res) => {
             res.status(404).json({ message: "Project not found" });
             return;
         }
-        if (!project.owner.equals(req.user._id)) {
+        if (!isAdmin(project, req.user._id)) {
             res.status(403).json({ message: "Not authorized" });
             return;
         }
